@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8
+    container_name: mysql-taskmanager
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: taskmanagerdb
+      MYSQL_USER: taskuser
+      MYSQL_PASSWORD: taskpass
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - task-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    container_name: springboot-taskmanager
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    networks:
+      - task-network
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/taskmanagerdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: taskuser
+      SPRING_DATASOURCE_PASSWORD: taskpass
+
+volumes:
+  mysql-data:
+
+networks:
+  task-network:
