@@ -1,4 +1,4 @@
-const API_URL = process.env.REACT_APP_API_URL`/api/tasks`;
+const API_URL = `${process.env.REACT_APP_API_URL}/api/tasks`;
 
 export const getTasks = async () => {
   const res = await fetch(API_URL);
